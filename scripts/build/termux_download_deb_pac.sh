@@ -22,7 +22,7 @@ termux_download_deb_pac() {
 	if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ]; then
 		case "$TERMUX_APP_PACKAGE_MANAGER" in
 			"apt") apt install -y "${PACKAGE}=${VERSION}";;
-			"pacman") pacman -S "${PACKAGE}=${VERSION_PACMAN}" --needed --noconfirm;;
+			"pacman") pacman -S "${PACKAGE}>=${VERSION_PACMAN}" --needed --noconfirm;;
 		esac
 		return "$?"
 	fi

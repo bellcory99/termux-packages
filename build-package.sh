@@ -1,6 +1,14 @@
 #!/bin/bash
 # shellcheck disable=SC1117
 
+# If root call
+if [[ ! "$TERMUX_BUILD_PACKAGE_CALL_DEPTH" =~ ^[0-9]+$ ]]; then
+        export TERMUX_BUILD_PACKAGE_CALL_DEPTH=0
+        export TERMUX_BUILD_PACKAGE_CALL_BUILT_PACKAGES_LIST=""
+else
+        export TERMUX_BUILD_PACKAGE_CALL_DEPTH=$(( TERMUX_BUILD_PACKAGE_CALL_DEPTH + 1 ))
+fi
+
 set -e -o pipefail -u
 
 cd "$(realpath "$(dirname "$0")")"
@@ -364,7 +372,7 @@ _show_usage() {
 	echo "  -d Build with debug symbols."
 	echo "  -D Build a disabled package in disabled-packages/."
 	echo "  -f Force build even if package has already been built."
-	echo "  -F Forced assembly, only those that were specified."
+	echo "  -F Force build even if package and its dependencies have already been built."
 	[ "$TERMUX_ON_DEVICE_BUILD" = "false" ] && echo "  -i Download and extract dependencies instead of building them."
 	echo "  -I Download and extract dependencies instead of building them, keep existing $TERMUX_BASE_DIR files."
 	echo "  -q Quiet build."
@@ -410,7 +418,7 @@ while (($# >= 1)); do
 		-d) export TERMUX_DEBUG_BUILD=true;;
 		-D) TERMUX_IS_DISABLED=true;;
 		-f) TERMUX_FORCE_BUILD=true;;
-		-F) TERMUX_FORCE_BUILD_SPECIFIED=true;;
+		-F) TERMUX_FORCE_BUILD_DEPENDENCIES=true && TERMUX_FORCE_BUILD=true;;
 		-i)
 			if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ]; then
 				termux_error_exit "./build-package.sh: option '-i' is not available for on-device builds"
